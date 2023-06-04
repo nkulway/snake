@@ -1,17 +1,22 @@
 import React, { useRef } from "react"
 import Canvas from "../canvas/Canvas"
 import { GameWrapper } from "./Game.styles"
+import draw from "../draw/draw"
+import useGameLogic from "./useGameLogic"
 
 interface GameProps {}
 
 const Game: React.FC<GameProps> = ({}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { snakeBody, onKeyDownHandler } = useGameLogic()
 
-  const draw = (ctx: CanvasRenderingContext2D) => {}
+  const drawGame = (context: CanvasRenderingContext2D) => {
+    draw({ context, snakeBody })
+  }
 
   return (
-    <GameWrapper>
-      <Canvas ref={canvasRef} draw={draw} />
+    <GameWrapper tabIndex={0} onKeyDown={onKeyDownHandler}>
+      <Canvas ref={canvasRef} draw={drawGame} />
     </GameWrapper>
   )
 }
