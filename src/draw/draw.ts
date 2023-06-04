@@ -5,7 +5,7 @@ interface DrawArgs {
   snakeBody: Position[]
 }
 
-const SEGMENT_SIZE = 5
+export const SEGMENT_SIZE = 10
 
 const draw = ({ context, snakeBody }: DrawArgs) => {
   console.log(snakeBody)

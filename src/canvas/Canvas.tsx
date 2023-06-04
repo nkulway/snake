@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef } from "react"
+import React, { forwardRef, useEffect } from "react"
 import * as S from "./Canvas.styles"
 
 type CanvasProps = React.DetailedHTMLProps<
@@ -26,6 +26,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
       }
 
       draw(context)
+      return () => context.clearRect(0, 0, window.innerWidth, 400)
     }, [draw, canvasRef])
 
     if (!canvasRef) {

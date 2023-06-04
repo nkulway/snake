@@ -1,5 +1,13 @@
 import { Position } from "./useGameLogic"
 
+/**
+ *
+ * @param girdSize
+ * @returns
+ *
+ * Change position of snake head and remove last segment in body
+ */
+
 const createSnakeMovement = (girdSize = 5) => ({
   moveRight: (snakeBody: Position[]) => {
     const bodyCopy = [...snakeBody]
