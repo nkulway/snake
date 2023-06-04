@@ -8,13 +8,13 @@ interface GameProps {}
 
 const Game: React.FC<GameProps> = ({}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { snakeBody, onKeyDownHandler } = useGameLogic({
+  const { snakeBody, onKeyDownHandler, foodPosition } = useGameLogic({
     canvasHeight: canvasRef.current?.height,
     canvasWidth: canvasRef.current?.width,
   })
 
   const drawGame = (context: CanvasRenderingContext2D) => {
-    draw({ context, snakeBody })
+    draw({ context, snakeBody, foodPosition })
   }
 
   return (

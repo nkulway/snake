@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useInterval from "../utils/useInterval"
 import createSnakeMovement from "./movement"
 import { SEGMENT_SIZE } from "../draw/draw"
+import randomPositionOnGrid from "../utils/randomPositionOnGrid"
 
 export interface Position {
   x: number
@@ -32,8 +33,38 @@ const useGameLogic = ({ canvasHeight, canvasWidth }: UseGameLogicArgs) => {
     },
   ])
 
+  const [foodPosition, setFoodPosition] = useState<Position | undefined>()
+
   const snakeHeadPosition = snakeBody[snakeBody.length - 1]
   const { moveDown, moveUP, moveRight, moveLeft } = createSnakeMovement()
+
+  useEffect(() => {
+    if (!canvasHeight || !canvasWidth) {
+      return
+    }
+    setFoodPosition({
+      x: randomPositionOnGrid({
+        gridSize: SEGMENT_SIZE,
+        threshold: canvasWidth,
+      }),
+      y: randomPositionOnGrid({
+        gridSize: SEGMENT_SIZE,
+        threshold: canvasHeight,
+      }),
+    })
+    setSnakeBody([
+      {
+        x: randomPositionOnGrid({
+          gridSize: SEGMENT_SIZE,
+          threshold: canvasWidth,
+        }),
+        y: randomPositionOnGrid({
+          gridSize: SEGMENT_SIZE,
+          threshold: canvasHeight,
+        }),
+      },
+    ])
+  }, [canvasHeight, canvasWidth])
 
   const onKeyDownHandler = (event: React.KeyboardEvent<HTMLDivElement>) => {
     switch (event.code) {
@@ -107,7 +138,7 @@ const useGameLogic = ({ canvasHeight, canvasWidth }: UseGameLogicArgs) => {
 
   useInterval(moveSnake, MOVEMENT_SPEED)
 
-  return { snakeBody, onKeyDownHandler }
+  return { snakeBody, onKeyDownHandler, foodPosition }
 }
 
 export default useGameLogic

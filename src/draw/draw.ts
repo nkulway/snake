@@ -3,12 +3,21 @@ import { Position } from "../game/useGameLogic"
 interface DrawArgs {
   context: CanvasRenderingContext2D
   snakeBody: Position[]
+  foodPosition?: Position
 }
 
-export const SEGMENT_SIZE = 10
+export const SEGMENT_SIZE = 5
 
-const draw = ({ context, snakeBody }: DrawArgs) => {
-  console.log(snakeBody)
+const draw = ({ context, snakeBody, foodPosition }: DrawArgs) => {
+  if (foodPosition) {
+    context.fillStyle = "rgb(0, 200, 0)"
+    context.fillRect(
+      foodPosition?.x,
+      foodPosition?.y,
+      SEGMENT_SIZE,
+      SEGMENT_SIZE
+    )
+  }
 
   context.fillStyle = "rgb(223,255,0)"
   snakeBody.forEach((segment) =>
