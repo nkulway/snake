@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "styled-components"
 
 export const GameWrapper = styled.div`
   width: 100%auto;
@@ -6,4 +6,4 @@ export const GameWrapper = styled.div`
   align-items: center;
   outline: none;
   flex-direction: column;
-`;
+`
