@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react"
 import useInterval from "../utils/useInterval"
-import createSnakeMovement from "./movement"
+import createSnakeMovement, {
+  hasSnakeEatenItself,
+  willSnakeHitTheFood,
+} from "./movement"
 import { SEGMENT_SIZE } from "../draw/draw"
 import randomPositionOnGrid from "../utils/randomPositionOnGrid"
+import { GameState } from "./Game"
 
 export interface Position {
   x: number
@@ -22,9 +26,16 @@ const MOVEMENT_SPEED = 75
 interface UseGameLogicArgs {
   canvasHeight?: number
   canvasWidth?: number
+  onGameOver: () => void
+  gameState: GameState
 }
 
-const useGameLogic = ({ canvasHeight, canvasWidth }: UseGameLogicArgs) => {
+const useGameLogic = ({
+  canvasHeight,
+  canvasWidth,
+  onGameOver,
+  gameState,
+}: UseGameLogicArgs) => {
   const [direction, setDirection] = useState<Direction | undefined>()
   const [snakeBody, setSnakeBody] = useState<Position[]>([
     {
@@ -33,10 +44,37 @@ const useGameLogic = ({ canvasHeight, canvasWidth }: UseGameLogicArgs) => {
     },
   ])
 
+  const resetGameState = () => {
+    setDirection(undefined)
+    setFoodPosition({
+      x: randomPositionOnGrid({
+        gridSize: SEGMENT_SIZE,
+        threshold: canvasWidth!,
+      }),
+      y: randomPositionOnGrid({
+        gridSize: SEGMENT_SIZE,
+        threshold: canvasHeight!,
+      }),
+    })
+
+    setSnakeBody([
+      {
+        x: randomPositionOnGrid({
+          gridSize: SEGMENT_SIZE,
+          threshold: canvasWidth!,
+        }),
+        y: randomPositionOnGrid({
+          gridSize: SEGMENT_SIZE,
+          threshold: canvasHeight!,
+        }),
+      },
+    ])
+  }
+
   const [foodPosition, setFoodPosition] = useState<Position | undefined>()
 
   const snakeHeadPosition = snakeBody[snakeBody.length - 1]
-  const { moveDown, moveUP, moveRight, moveLeft } = createSnakeMovement()
+  const { moveDown, moveUp, moveRight, moveLeft } = createSnakeMovement()
 
   useEffect(() => {
     if (!canvasHeight || !canvasWidth) {
@@ -96,7 +134,7 @@ const useGameLogic = ({ canvasHeight, canvasWidth }: UseGameLogicArgs) => {
     switch (direction) {
       case Direction.UP:
         if (snakeHeadPosition.y > 0) {
-          snakeBodyAfterMovement = moveUP(snakeBody)
+          snakeBodyAfterMovement = moveUp(snakeBody)
         } else if (canvasWidth && snakeHeadPosition.x > canvasWidth / 2) {
           setDirection(Direction.LEFT)
         } else {
@@ -112,15 +150,6 @@ const useGameLogic = ({ canvasHeight, canvasWidth }: UseGameLogicArgs) => {
           setDirection(Direction.RIGHT)
         }
         break
-      case Direction.RIGHT:
-        if (canvasWidth && snakeHeadPosition.x < canvasWidth - SEGMENT_SIZE) {
-          snakeBodyAfterMovement = moveRight(snakeBody)
-        } else if (canvasHeight && snakeHeadPosition.y < canvasHeight / 2) {
-          setDirection(Direction.DOWN)
-        } else {
-          setDirection(Direction.UP)
-        }
-        break
       case Direction.LEFT:
         if (snakeHeadPosition.x > 0) {
           snakeBodyAfterMovement = moveLeft(snakeBody)
@@ -130,15 +159,60 @@ const useGameLogic = ({ canvasHeight, canvasWidth }: UseGameLogicArgs) => {
           setDirection(Direction.UP)
         }
         break
+      case Direction.RIGHT:
+        if (canvasWidth && snakeHeadPosition.x < canvasWidth - SEGMENT_SIZE) {
+          snakeBodyAfterMovement = moveRight(snakeBody)
+        } else if (canvasHeight && snakeHeadPosition.y < canvasHeight / 2) {
+          setDirection(Direction.DOWN)
+        } else {
+          setDirection(Direction.UP)
+        }
+        break
     }
+
     if (snakeBodyAfterMovement) {
+      const isGameOver = hasSnakeEatenItself(snakeBodyAfterMovement)
+      if (isGameOver) {
+        onGameOver()
+      }
+    }
+
+    if (
+      direction !== undefined &&
+      foodPosition &&
+      willSnakeHitTheFood({
+        foodPosition,
+        snakeHeadPosition,
+        direction,
+      })
+    ) {
+      setSnakeBody([
+        ...snakeBodyAfterMovement!,
+        { x: foodPosition.x, y: foodPosition.y },
+      ])
+
+      setFoodPosition({
+        x: randomPositionOnGrid({
+          threshold: canvasWidth!,
+        }),
+        y: randomPositionOnGrid({ threshold: canvasHeight! }),
+      })
+    } else if (snakeBodyAfterMovement) {
       setSnakeBody(snakeBodyAfterMovement)
     }
   }
 
-  useInterval(moveSnake, MOVEMENT_SPEED)
+  useInterval(
+    moveSnake,
+    gameState === GameState.RUNNING ? MOVEMENT_SPEED : null
+  )
 
-  return { snakeBody, onKeyDownHandler, foodPosition }
+  return {
+    snakeBody,
+    onKeyDownHandler,
+    foodPosition,
+    resetGameState,
+  }
 }
 
 export default useGameLogic

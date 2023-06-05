@@ -14,13 +14,12 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
       if (!canvasRef) {
         return
       }
-
       const canvas = (canvasRef as React.RefObject<HTMLCanvasElement>).current
       if (!canvas) {
         return
       }
 
-      const context = canvas.getContext(`2d`)
+      const context = canvas.getContext("2d")
       if (!context) {
         return
       }
@@ -34,7 +33,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
     }
 
     return (
-      <S.Canvas width={400} height={200} ref={canvasRef as any} {...props} />
+      <S.Canvas width={300} height={150} ref={canvasRef as any} {...props} />
     )
   }
 )

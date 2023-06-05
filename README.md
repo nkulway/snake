@@ -1,7 +1,5 @@
 # Good Ole Snake 🐍
 
-### WIP ⚠️
-
 ### Rules 📜
 
 1. Whenever snake eats food the player is awarded 10 points and snake grows
