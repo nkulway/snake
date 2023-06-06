@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect } from "react"
+import React, { forwardRef, useEffect, useRef } from "react"
 import * as S from "./Canvas.styles"
 
 type CanvasProps = React.DetailedHTMLProps<
@@ -8,34 +8,31 @@ type CanvasProps = React.DetailedHTMLProps<
   draw: (context: CanvasRenderingContext2D) => void
 }
 
-const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(
-  ({ draw, ...props }, canvasRef) => {
-    useEffect(() => {
-      if (!canvasRef) {
-        return
-      }
-      const canvas = (canvasRef as React.RefObject<HTMLCanvasElement>).current
-      if (!canvas) {
-        return
-      }
-
-      const context = canvas.getContext("2d")
-      if (!context) {
-        return
-      }
-
-      draw(context)
-      return () => context.clearRect(0, 0, window.innerWidth, 400)
-    }, [draw, canvasRef])
-
+const Canvas: React.FC<CanvasProps> = ({ draw, ...props }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  useEffect(() => {
     if (!canvasRef) {
-      return null
+      return
+    }
+    const canvas = (canvasRef as React.RefObject<HTMLCanvasElement>).current
+    if (!canvas) {
+      return
     }
 
-    return (
-      <S.Canvas width={300} height={150} ref={canvasRef as any} {...props} />
-    )
+    const context = canvas.getContext("2d")
+    if (!context) {
+      return
+    }
+
+    draw(context)
+    return () => context.clearRect(0, 0, window.innerWidth, 400)
+  }, [draw, canvasRef])
+
+  if (!canvasRef) {
+    return null
   }
-)
+
+  return <S.Canvas width={300} height={150} ref={canvasRef as any} {...props} />
+}
 
 export default Canvas

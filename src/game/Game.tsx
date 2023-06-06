@@ -13,8 +13,6 @@ export enum GameState {
 }
 
 const Game: React.FC<GameProps> = ({}) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
   const onGameOver = () => setGameState(GameState.GAME_OVER)
   const [gameState, setGameState] = useState<GameState>(GameState.RUNNING)
 
@@ -32,7 +30,7 @@ const Game: React.FC<GameProps> = ({}) => {
 
   return (
     <GameWrapper tabIndex={0} onKeyDown={onKeyDownHandler}>
-      <Canvas ref={canvasRef} draw={drawGame} />
+      <Canvas draw={drawGame} />
       {gameState === GameState.GAME_OVER ? (
         <button
           onClick={() => {
